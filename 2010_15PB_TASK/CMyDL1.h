@@ -22,4 +22,6 @@ protected:
 	virtual void OnCancel() { return; };
 	//afx_msg void OnClose(); //响应关闭事件！
 	DECLARE_MESSAGE_MAP()
+public:
+	CButton CMyCheck1;
 };

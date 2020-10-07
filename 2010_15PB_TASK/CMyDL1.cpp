@@ -24,6 +24,7 @@ CMyDL1::~CMyDL1()
 void CMyDL1::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_CHECK1, CMyCheck1);
 }
 
 

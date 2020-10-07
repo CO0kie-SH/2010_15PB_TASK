@@ -48,9 +48,7 @@ END_MESSAGE_MAP()
 
 
 // CMy201015PBTASKDlg 对话框
-
-
-
+#pragma region _注册对话框
 CMy201015PBTASKDlg::CMy201015PBTASKDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MY2010_15PB_TASK_DIALOG, pParent)
 {
@@ -70,6 +68,7 @@ BEGIN_MESSAGE_MAP(CMy201015PBTASKDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 END_MESSAGE_MAP()
 
+#pragma endregion
 
 // CMy201015PBTASKDlg 消息处理程序
 
@@ -161,3 +160,4 @@ HCURSOR CMy201015PBTASKDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
+

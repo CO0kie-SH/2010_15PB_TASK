@@ -17,6 +17,11 @@ CMyTabCtrl::CMyTabCtrl()
 
 CMyTabCtrl::~CMyTabCtrl()
 {
+	size_t i = m_vecDlg.size();
+	while (i--)
+	{
+		delete m_vecDlg[i];
+	}
 }
 
 void CMyTabCtrl::InitTab(int nCount, ...)
@@ -24,7 +29,7 @@ void CMyTabCtrl::InitTab(int nCount, ...)
 	va_list  vl;	int i = 0;
 	CDialogEx* pDlg = nullptr;
 	va_start(vl, nCount);
-	for (; i < defTabLen; i++)
+	for (; i < gdefTabLen; i++)
 		InsertItem(i, defStrsTab[i]);
 	for (i = 0; i < nCount; i++)
 	{
@@ -40,12 +45,17 @@ void CMyTabCtrl::InitTab(int nCount, ...)
 		CRect rc = {};
 		GetClientRect(&rc);
 		//4 将矩形框，缩小一下，能够把Tab的表头 显示出来
-		rc.DeflateRect(1, 25, 1, 1);
+		rc.DeflateRect(1, 28, 1, 1);
 		//5 移动
 		pDlg->MoveWindow(rc);
 		m_vecDlg.push_back(pDlg);
 	}
 	m_vecDlg[0]->ShowWindow(SW_SHOW);
+	gView.Init(
+		(CButton*)m_vecDlg[0]->GetDlgItem(IDC_CHECK1),
+		(CListCtrl*)m_vecDlg[0]->GetDlgItem(IDC_LIST1),
+		(CListCtrl*)m_vecDlg[1]->GetDlgItem(IDC_LIST2)
+	);
 	va_end(vl);
 }
 
@@ -58,14 +68,18 @@ END_MESSAGE_MAP()
 
 // CMyTabCtrl 消息处理程序
 
-
-
-
 void CMyTabCtrl::OnTcnSelchange(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int nSel = GetCurSel();
-	m_vecDlg[0]->ShowWindow(nSel == 0 ? SW_SHOW : SW_HIDE);
-	m_vecDlg[1]->ShowWindow(nSel != 0 ? SW_SHOW : SW_HIDE);
+	if (nSel > 0) {
+		m_vecDlg[0]->ShowWindow(SW_HIDE);
+		m_vecDlg[1]->ShowWindow(SW_SHOW);
+	}
+	else {
+		m_vecDlg[0]->ShowWindow(SW_SHOW);
+		m_vecDlg[1]->ShowWindow(SW_HIDE);
+	}
+	gView.InitList(nSel);
 	*pResult = 0;
 }
