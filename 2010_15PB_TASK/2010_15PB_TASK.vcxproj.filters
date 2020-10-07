@@ -39,6 +39,15 @@
     <ClInclude Include="CMyView.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CMyTabCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMyDL1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMyDL2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="2010_15PB_TASK.cpp">
@@ -54,6 +63,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CMyView.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMyTabCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMyDL1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMyDL2.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

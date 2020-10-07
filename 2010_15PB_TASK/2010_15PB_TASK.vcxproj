@@ -186,6 +186,9 @@
     <ClInclude Include="2010_15PB_TASK.h" />
     <ClInclude Include="2010_15PB_TASKDlg.h" />
     <ClInclude Include="CMyApi.h" />
+    <ClInclude Include="CMyDL1.h" />
+    <ClInclude Include="CMyDL2.h" />
+    <ClInclude Include="CMyTabCtrl.h" />
     <ClInclude Include="CMyView.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
@@ -196,6 +199,9 @@
     <ClCompile Include="2010_15PB_TASK.cpp" />
     <ClCompile Include="2010_15PB_TASKDlg.cpp" />
     <ClCompile Include="CMyApi.cpp" />
+    <ClCompile Include="CMyDL1.cpp" />
+    <ClCompile Include="CMyDL2.cpp" />
+    <ClCompile Include="CMyTabCtrl.cpp" />
     <ClCompile Include="CMyView.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

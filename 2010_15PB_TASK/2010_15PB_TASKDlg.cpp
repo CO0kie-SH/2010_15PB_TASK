@@ -14,7 +14,7 @@
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
-
+#pragma region _关于 菜单
 class CAboutDlg : public CDialogEx
 {
 public:
@@ -41,6 +41,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 }
+#pragma endregion
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
@@ -59,6 +60,8 @@ CMy201015PBTASKDlg::CMy201015PBTASKDlg(CWnd* pParent /*=nullptr*/)
 void CMy201015PBTASKDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	//  DDX_Control(pDX, IDC_TAB1, mobjTabC);
+	DDX_Control(pDX, IDC_TAB1, mobjTabC);
 }
 
 BEGIN_MESSAGE_MAP(CMy201015PBTASKDlg, CDialogEx)
@@ -73,8 +76,8 @@ END_MESSAGE_MAP()
 BOOL CMy201015PBTASKDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
 	// 将“关于...”菜单项添加到系统菜单中。
+#pragma region _	系统初始化
 
 	// IDM_ABOUTBOX 必须在系统命令范围内。
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
@@ -98,9 +101,15 @@ BOOL CMy201015PBTASKDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
-
+#pragma endregion
 	// TODO: 在此添加额外的初始化代码
-
+	mobjTabC.InitTab(2,
+		defStrsTab[0], new CMyDL1(), IDD_DIALOG1,
+		defStrsTab[1], new CMyDL2(), IDD_DIALOG2
+		//_T("选项3"), new CMyDialog3(), IDD_DIALOG3,
+		//_T("选项4"), new CMyDialog4(), IDD_DIALOG4,
+		//_T("选项5"), new CMyDialog5(), IDD_DIALOG5
+	);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -152,4 +161,3 @@ HCURSOR CMy201015PBTASKDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
-

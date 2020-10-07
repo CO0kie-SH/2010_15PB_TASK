@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "CMyTabCtrl.h"
 
 // CMy201015PBTASKDlg 对话框
 class CMy201015PBTASKDlg : public CDialogEx
@@ -31,4 +31,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+//	CTabCtrl mobjTabC;
+	CMyTabCtrl mobjTabC;
 };
