@@ -18,6 +18,12 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+	virtual void OnOK() { return; };
+	virtual void OnCancel() { return; };
+	//afx_msg void OnClose(); //响应关闭事件！
 
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnNMDblclkList2(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnRclickList2(NMHDR* pNMHDR, LRESULT* pResult);
 };

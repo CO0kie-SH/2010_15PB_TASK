@@ -19,3 +19,8 @@ VC MFC  屏蔽ESC和ENTER键关闭对话框 - yjig - 博客园<br>
 https://www.cnblogs.com/yangjig/p/3913751.html
 
 
+MFC更换窗口图标 - osc_uarhdl2n的个人空间 - OSCHINA - 中文开源技术交流社区<br>
+https://my.oschina.net/u/4346998/blog/3841928
+
+
+

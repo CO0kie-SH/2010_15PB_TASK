@@ -19,9 +19,7 @@ CMyTabCtrl::~CMyTabCtrl()
 {
 	size_t i = m_vecDlg.size();
 	while (i--)
-	{
 		delete m_vecDlg[i];
-	}
 }
 
 void CMyTabCtrl::InitTab(int nCount, ...)
@@ -72,14 +70,17 @@ void CMyTabCtrl::OnTcnSelchange(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int nSel = GetCurSel();
-	if (nSel > 0) {
-		m_vecDlg[0]->ShowWindow(SW_HIDE);
-		m_vecDlg[1]->ShowWindow(SW_SHOW);
-	}
-	else {
-		m_vecDlg[0]->ShowWindow(SW_SHOW);
-		m_vecDlg[1]->ShowWindow(SW_HIDE);
-	}
+	m_vecDlg[0]->ShowWindow(SW_HIDE);
+	m_vecDlg[1]->ShowWindow(SW_HIDE);
 	gView.InitList(nSel);
+	switch (nSel) {
+	case gdefidx进程:
+		if (gAPI.GetPEs(&gData.PEINFO)) {
+			gView.SetList(nSel);
+		}
+		break;
+	default: break;
+	}
+	m_vecDlg[0 != nSel]->ShowWindow(SW_NORMAL);
 	*pResult = 0;
 }
