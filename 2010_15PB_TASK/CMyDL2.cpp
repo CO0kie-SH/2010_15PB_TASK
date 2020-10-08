@@ -49,11 +49,12 @@ void CMyDL2::OnRclickList2(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	// TODO: 在此添加控件通知处理程序代码
-	if (pNMItemActivate->iItem != -1) {
+	if (pNMItemActivate->iItem != -1 &&
+		gView.mIndexNow > 0) {
 		ClientToScreen(&pNMItemActivate->ptAction);
 		CMenu obj;
 		obj.LoadMenuW(IDR_MENU1);
-		gView.PopupMenu(pNMItemActivate, obj, this);
+		gView.PopupMenu(pNMItemActivate, obj);
 	}
 	*pResult = 0;
 }

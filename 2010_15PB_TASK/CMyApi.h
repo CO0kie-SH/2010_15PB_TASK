@@ -5,8 +5,10 @@
 using std::vector;
 
 
-
+//	标题
 #define MYTITLE			_T("欢迎使用")
+
+//	进程
 #define gdefstrPPID		_T("PPID")
 #define gdefidxPPID		0x01
 #define gdefstrPID		_T("PID")
@@ -16,11 +18,23 @@ using std::vector;
 #define gdefstrNam		_T("进程名")
 #define gdefidxNam		0x04
 #define gdefstrPath		_T("路径名")
-#define gdefidxPath		0x05
+#define gdefidxPat		0x05
+
+//	模块
 #define gdefstrMAdd		_T("基址")
 #define gdefidxMAdd		0x02
 #define gdefstrMLen		_T("大小")
 #define gdefidxMLen		0x03
+
+//	线程
+#define gdefstrTHid		_T("线程ID")
+#define gdefidxTHid		0x02
+#define gdefstrTHPri	_T("优先级")
+#define gdefidxTHPri	0x03
+#define gdefstrTHCT		_T("创建时间")
+#define gdefidxTHCT		0x04
+#define gdefstrTHCout	_T("挂起次数")
+#define gdefidxTHCout	0x05
 
 typedef struct _MODULEINFO {	// 模块信息
 	DWORD	tMLP = 0;			// 模块基址
@@ -42,6 +56,13 @@ typedef struct _PROCESSINFO {	//进程信息
 	CString	path;
 }PROCESSINFO, * LPPROCESSINFO;
 
+typedef struct _THREADINFO
+{
+	DWORD   th32ThreadID;       // 线程ID
+	DWORD   th32OwnerProcessID; // 进程PID
+	LONG    tpBasePri;			// 进程优先级
+	SYSTEMTIME thCreatTime;		// 线程创建时间
+} THREADINFO, * LPTHREADINFO;
 
 #define gdefTabLen		0x06
 #define gdefidx窗口		0x00
@@ -67,7 +88,10 @@ public:
 
 public:
 	bool GetPEs(vector<PROCESSINFO>* INFOs = nullptr);
-	bool GetMDs(PROCESSINFO& PE) { return false; };
+	bool GetP64(PROCESSINFO& PE);
+	bool GetMDs(PROCESSINFO& PE, vector<MODULEINFO>& MDs);
+	bool GetTHs(vector<THREADINFO>& THs, DWORD pid = 0);
+	bool GetThreadCreateTime(THREADINFO& TH);
 };
 
 

@@ -66,6 +66,8 @@ BEGIN_MESSAGE_MAP(CMy201015PBTASKDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_COMMAND(ID_32778, &CMy201015PBTASKDlg::OnClickMenu)
+	ON_COMMAND(ID_32779, &CMy201015PBTASKDlg::OnClickMenuTH)
 END_MESSAGE_MAP()
 
 #pragma endregion
@@ -102,6 +104,7 @@ BOOL CMy201015PBTASKDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 #pragma endregion
 	// TODO: 在此添加额外的初始化代码
+	SetWindowText(MYTITLE);
 	mobjTabC.InitTab(2,
 		defStrsTab[0], new CMyDL1(), IDD_DIALOG1,
 		defStrsTab[1], new CMyDL2(), IDD_DIALOG2
@@ -109,6 +112,7 @@ BOOL CMy201015PBTASKDlg::OnInitDialog()
 		//_T("选项4"), new CMyDialog4(), IDD_DIALOG4,
 		//_T("选项5"), new CMyDialog5(), IDD_DIALOG5
 	);
+	gView.Init(this);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -161,3 +165,42 @@ HCURSOR CMy201015PBTASKDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMy201015PBTASKDlg::OnClickMenu()
+{
+	// TODO: 在此添加命令处理程序代码
+	int index = gView.GetPEIndex();
+	if (index < 0)	return;
+	PROCESSINFO& pe = gData.PEINFO[index];
+	vector<MODULEINFO> MDs;
+	if (gAPI.GetMDs(pe, MDs)) {
+		if (pe.tMDs) delete[] pe.tPMD;
+		pe.tMDs = (DWORD)MDs.size();
+		pe.tPMD = new MODULEINFO[pe.tMDs];
+		for (DWORD i = pe.tMDs; i--; )
+			pe.tPMD[i] = MDs[i];
+		//改变TAB控件
+		((CTabCtrl*)this->GetDlgItem(IDC_TAB1))
+			->SetCurSel(gdefidx模块);
+		gView.InitList(gdefidx模块);
+		gView.SetList(gdefidx模块, index);
+	}
+}
+
+
+void CMy201015PBTASKDlg::OnClickMenuTH()
+{
+	// TODO: 在此添加命令处理程序代码
+	int index = gView.GetPEIndex();
+	if (index < 0)	return;
+	PROCESSINFO& pe = gData.PEINFO[index];
+
+	vector<THREADINFO> THs;
+	if (gAPI.GetTHs(THs, pe.tPID)) {
+		((CTabCtrl*)this->GetDlgItem(IDC_TAB1))
+			->SetCurSel(gdefidx线程);
+		gView.InitList(gdefidx线程);
+		gView.SetList(THs);
+	}
+}

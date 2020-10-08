@@ -34,4 +34,6 @@ protected:
 public:
 //	CTabCtrl mobjTabC;
 	CMyTabCtrl mobjTabC;
+	afx_msg void OnClickMenu();
+	afx_msg void OnClickMenuTH();
 };
