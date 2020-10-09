@@ -11,20 +11,31 @@ public:
 	void InitList(const int index);
 	void SetList(const int index, const int idxPE = 0);
 	void SetList(vector<THREADINFO>& THs);
+	void SetList(vector<HEADINFO>& HDs);
+	void SetList(vector<ULONG>& HWs);
 public:
 	void Init(CDialogEx* CVMain) {
 		this->CVMain = CVMain;
 	};
 
 	void PopupMenu(LPNMITEMACTIVATE& LP, CMenu& obj) {
-		int x = 0;
-		if (gdefidx窗口 == mIndexNow)	return;
-		else if (gdefidx进程 == mIndexNow)	x = 1;
-		else if (gdefidx模块 == mIndexNow)	x = 2;
-		CMenu* pSubMenu1 = obj.GetSubMenu(x);
+		int x = mIndexNow;	CString str;
 		int& index = LP->iItem;
-		pSubMenu1->AppendMenu(MF_GRAYED, MF_POPUP,
-			gData.PEINFO[index].name);
+		if (index == -1 || x == 0) return;
+		if (gdefidx窗口 == mIndexNow)	return;
+		else if (gdefidx进程 == mIndexNow) {
+			str = gData.PEINFO[index].name;
+		}
+		else if (gdefidx模块 == mIndexNow) {
+			return;
+		}
+		else if (gdefidx线程 == mIndexNow) {
+			str.Format(_T("TID="));
+			str += this->CVLSpe->GetItemText(
+				index, gdefidxTHid);
+		}
+		CMenu* pSubMenu1 = obj.GetSubMenu(x);
+		pSubMenu1->AppendMenu(MF_GRAYED, MF_POPUP, str);
 		pSubMenu1->TrackPopupMenu(TPM_LEFTALIGN,
 			LP->ptAction.x, LP->ptAction.y, CVMain);
 	};
@@ -37,8 +48,14 @@ public:
 		if (line == -1) return;
 		CString str;
 		if (cout)
-			str.Format(_T("%ld"), 1);
-		this->CVLSpe->SetItemText(line, gdefidxTHCT, str);
+			str.Format(_T("%ld"), cout);
+		this->CVLSpe->SetItemText(line, gdefidxTHCout, str);
+	};
+	int GetThreadID(int line) {
+		if (line == -1)	return -1;
+		CString& str=
+			CVLSpe->GetItemText(line, gdefidxTHid);
+		return _ttoi(str);
 	};
 	//int GetIndexNow() { return mIndexNow; };
 public:

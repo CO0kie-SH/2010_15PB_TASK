@@ -66,8 +66,9 @@ BEGIN_MESSAGE_MAP(CMy201015PBTASKDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_COMMAND(ID_32778, &CMy201015PBTASKDlg::OnClickMenu)
-	ON_COMMAND(ID_32779, &CMy201015PBTASKDlg::OnClickMenuTH)
+	ON_COMMAND_RANGE(ID_32774, ID_32796, &CMy201015PBTASKDlg::OnClickMenus)
+	//ON_COMMAND(ID_32778, &CMy201015PBTASKDlg::OnClickMenu)
+	//ON_COMMAND(ID_32779, &CMy201015PBTASKDlg::OnClickMenuTH)
 END_MESSAGE_MAP()
 
 #pragma endregion
@@ -185,6 +186,110 @@ void CMy201015PBTASKDlg::OnClickMenu()
 			->SetCurSel(gdefidx模块);
 		gView.InitList(gdefidx模块);
 		gView.SetList(gdefidx模块, index);
+	}
+}
+
+void CMy201015PBTASKDlg::OnClickMenus(UINT nID)
+{
+	int index = gView.GetPEIndex();
+	CString str;
+	switch (nID){
+	case ID_32778: {			//获取模块
+		if (index < 0)	return;
+		PROCESSINFO& pe = gData.PEINFO[index];
+		vector<MODULEINFO> MDs;
+		if (gAPI.GetMDs(pe, MDs)) {
+			if (pe.tMDs) delete[] pe.tPMD;
+			pe.tMDs = (DWORD)MDs.size();
+			pe.tPMD = new MODULEINFO[pe.tMDs];
+			for (DWORD i = pe.tMDs; i--; )
+				pe.tPMD[i] = MDs[i];
+			//改变TAB控件
+			((CTabCtrl*)this->GetDlgItem(IDC_TAB1))
+				->SetCurSel(gdefidx模块);
+			gView.InitList(gdefidx模块);
+			gView.SetList(gdefidx模块, index);
+		}
+	}break;
+	case ID_32779: {			//获取线程
+		if (index < 0)	return;
+		PROCESSINFO& pe = gData.PEINFO[index];
+
+		vector<THREADINFO> THs;
+		if (gAPI.GetTHs(THs, pe.tPID)) {
+			((CTabCtrl*)this->GetDlgItem(IDC_TAB1))
+				->SetCurSel(gdefidx线程);
+			gView.InitList(gdefidx线程);
+			gView.SetList(THs);
+		}
+	}break;
+	case ID_32787: case ID_32788: {		//挂起、恢复线程
+		if (index < 0)	return;
+		DWORD TID = gView.GetThreadID(index), count = 0;
+		bool set = false;
+		if (ID_32787 == nID)
+			set = gAPI.SetThreadSuspend(TID, &count);
+		else if (ID_32788 == nID)
+			set = gAPI.SetThreadResume(TID, &count);
+		if (set == false)
+			str.Format(L"错误代码：%ld", GetLastError());
+		else {
+			gView.SetThreadCount(index, count);
+			str.Format(L"TID=%ld\n挂起次数=%ld", TID, count);
+		}
+		CString title;
+		title.Format(_T("操作%s："), set ? _T("成功") : _T("失败"));
+		MessageBox(str, title);
+	}break;
+	case ID_32786: {		//终结线程
+		if (index < 0)	return;
+		DWORD TID = gView.GetThreadID(index), exitID = 0;
+		bool set = gAPI.SetThreadTerminate(TID, &exitID);
+		if (set == false)
+			str.Format(L"错误代码：%ld", GetLastError());
+		else {
+			str.Format(L"TID=%ld\n已经退出。", TID);
+		}
+		CString title;
+		title.Format(_T("操作%s："), set ? _T("成功") : _T("失败"));
+		MessageBox(str, title);
+	}break;
+	case ID_32796: {		//获取堆
+		if (index < 0)	return;
+		PROCESSINFO& pe = gData.PEINFO[index];
+		vector<HEADINFO> HDs;
+		CTabCtrl* TAB = (CTabCtrl*)this->GetDlgItem(IDC_TAB1);
+		TAB->ShowWindow(SW_HIDE);
+		bool ret = gAPI.GetHeap(HDs, pe.tPID);
+		TAB->ShowWindow(SW_NORMAL);
+		if (ret) {
+			TAB->SetCurSel(gdefidx堆栈);
+			gView.InitList(gdefidx堆栈);
+			gView.SetList(HDs);
+			str.Format(_T("找到%lld堆区。"), HDs.size());
+		}
+		else if (HDs.size() == 0) {
+			str = _T("没有找到堆区或没有权限。");
+		}
+		else {
+			str.Format(_T("错误代码：%ld"), GetLastError());
+		}
+		MessageBox(str, ret ? _T("成功") : _T("错误"));
+	}break;
+	case ID_32785: {		//获取窗口
+		int oldTAB = gView.mIndexNow;
+		if (gdefidx窗口 != oldTAB) {
+			((CTabCtrl*)this->GetDlgItem(IDC_TAB1))
+				->SetCurFocus(gdefidx窗口);
+		}
+		else {
+			vector<ULONG> HWs;
+			if (gAPI.GetHwnds(&HWs)) {
+				gView.SetList(HWs);
+			}
+		}
+	}break;
+	default: break;
 	}
 }
 

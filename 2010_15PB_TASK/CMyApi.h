@@ -2,7 +2,9 @@
 
 #include <TlHelp32.h>
 #include <vector>
+#include <list>
 using std::vector;
+using std::list;
 
 
 //	标题
@@ -12,6 +14,7 @@ using std::vector;
 #define gdefstrPPID		_T("PPID")
 #define gdefidxPPID		0x01
 #define gdefstrPID		_T("PID")
+#define gdefstrTID		_T("TID")
 #define gdefidxPID		0x02
 #define gdefstrTHs		_T("线程数")
 #define gdefidxTHs		0x03
@@ -32,12 +35,12 @@ using std::vector;
 #define gdefstrTHPri	_T("优先级")
 #define gdefidxTHPri	0x03
 #define gdefstrTHCT		_T("创建时间")
-#define gdefidxTHCT		0x04
+#define gdefidxTHCT		0x05
 #define gdefstrTHCout	_T("挂起次数")
-#define gdefidxTHCout	0x05
+#define gdefidxTHCout	0x04
 
 typedef struct _MODULEINFO {	// 模块信息
-	DWORD	tMLP = 0;			// 模块基址
+	size_t	tMLP = 0;			// 模块基址
 	DWORD	pPID = 0;			// 所属进程ID
 	DWORD	size = 0;			// 模块的大小
 	BYTE* modBaseAddr = 0;		// 模块的加载基地址
@@ -63,6 +66,15 @@ typedef struct _THREADINFO
 	LONG    tpBasePri;			// 进程优先级
 	SYSTEMTIME thCreatTime;		// 线程创建时间
 } THREADINFO, * LPTHREADINFO;
+
+typedef struct _HEADINFO
+{
+	DWORD		th32ProcessID;	// 进程PID
+	DWORD		dwFlags;		// 堆块移动属性
+	SIZE_T		dwBlockSize;	// 堆块的大小，以字节为单位
+	ULONG_PTR	dwAddress;		// 块开始的线性地址
+	HANDLE		hHandle;		// 堆块的句柄
+} HEADINFO, * LPHEADINFO;
 
 #define gdefTabLen		0x06
 #define gdefidx窗口		0x00
@@ -92,6 +104,16 @@ public:
 	bool GetMDs(PROCESSINFO& PE, vector<MODULEINFO>& MDs);
 	bool GetTHs(vector<THREADINFO>& THs, DWORD pid = 0);
 	bool GetThreadCreateTime(THREADINFO& TH);
+	bool GetHeap(vector<HEADINFO>& HDs, DWORD pid = 0);
+	bool GetHwnds(vector<ULONG>* HWs);
+	bool GetHwndThreadProcessId(ULONG hwnd, LPDWORD pid, LPDWORD tid);	//从窗口句柄获取PID
+	bool GetHwndText(ULONG hwnd, CString& str);	//从窗口句柄获取标题
+
+	bool SetThreadSuspend(const DWORD TID, DWORD* count = nullptr);
+	bool SetThreadResume(const DWORD TID, DWORD* count = nullptr);
+	bool SetThreadTerminate(const DWORD TID, DWORD* count = nullptr);
+private:
+	static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 };
 
 

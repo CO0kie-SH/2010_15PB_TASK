@@ -5,6 +5,7 @@
 #include "2010_15PB_TASK.h"
 #include "CMyDL1.h"
 #include "afxdialogex.h"
+#include "CMyView.h"
 
 
 // CMyDL1 对话框
