@@ -52,7 +52,9 @@ void CMyTabCtrl::InitTab(int nCount, ...)
 	gView.Init(
 		(CButton*)m_vecDlg[0]->GetDlgItem(IDC_CHECK1),
 		(CListCtrl*)m_vecDlg[0]->GetDlgItem(IDC_LIST1),
-		(CListCtrl*)m_vecDlg[1]->GetDlgItem(IDC_LIST2)
+		(CListCtrl*)m_vecDlg[1]->GetDlgItem(IDC_LIST2),
+		(CButton*)m_vecDlg[0]->GetDlgItem(IDC_CHECK2),
+		(CButton*)m_vecDlg[0]->GetDlgItem(IDC_CHECK3)
 	);
 	va_end(vl);
 }

@@ -6,6 +6,7 @@ CMyApi gAPI;
 
 CMyApi::CMyApi()
 {
+	//gData.gFILE.push_back({ FILE_ATTRIBUTE_DIRECTORY });
 }
 
 CMyApi::~CMyApi()
@@ -246,6 +247,87 @@ bool CMyApi::GetHwndText(ULONG hwnd,CString& str)
 	return true;
 }
 
+bool CMyApi::GetPaths(vector<FILEINFO>* FLs, CString* path)
+{
+	if (nullptr == FLs)	return false;
+	if (path == nullptr)path = &gData.oldPath;
+	FILEINFO fl = {  };
+	if (*path == _T("")) {
+		TCHAR buf[100] = {};
+		TCHAR* pTemp = buf;
+		if (GetLogicalDriveStringsW(100, buf) > 0) {
+			do {
+				fl.isDIR = GetDriveTypeW(pTemp);
+				fl.pName.Format(_T("%s"), pTemp);
+				FLs->push_back(fl);
+				pTemp += wcslen(buf) + 1;
+			} while (wcslen(pTemp) > 0);
+		}
+		else	return false;
+	}
+	else
+	{
+		CString str = *path;
+		str += L"\\*";
+		WIN32_FIND_DATA FindData = { 0 };
+		HANDLE FindHandle = FindFirstFileW(str, &FindData);
+		if (FindHandle == INVALID_HANDLE_VALUE)	return false;
+		FLs->clear();
+		do {
+			if (wcscmp(FindData.cFileName, _T(".")) == 0)
+				continue;
+			fl = {
+				FindData.dwFileAttributes,
+				FindData.nFileSizeLow,
+				FindData
+			};
+			
+			fl.pName = *path;
+			if (fl.isDIR & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				str.Format(L"文件夹\t");
+			}
+			else
+			{
+				str.Format(L"文件\t");
+				//size_t size = (FindData.nFileSizeHigh *
+				//	(MAXDWORD + 1)) + FindData.nFileSizeLow;
+				//str.AppendFormat(L"%lld\t", size);
+				str.AppendFormat(L"%8ld\t", FindData.nFileSizeLow);
+			}
+			FLs->push_back(fl);
+			//str.AppendFormat(L"%s\n", FindData.cFileName);
+			//OutputDebugStringW(str);
+		} while (FindNextFile(FindHandle, &FindData));
+		FindClose(FindHandle);
+	}
+	return true;
+}
+
+bool CMyApi::GetPathMode(FILEINFO& Path, CString& str)
+{
+	if (gData.oldPath == _T("")) {
+		switch (Path.isDIR)	{
+		case DRIVE_UNKNOWN:
+			str = _T("无法确定驱动器类型。");		break;
+		case DRIVE_NO_ROOT_DIR:
+			str = _T("根路径无效。");				break;
+		case DRIVE_FIXED:
+			str = _T("固定的硬盘驱动器。");			break;
+		case DRIVE_REMOVABLE:
+			str = _T("该驱动器具有可移动介质。");	break;
+		case DRIVE_REMOTE:
+			str = _T("该驱动器是远程（网络）驱动器。");	break;
+		case DRIVE_CDROM:
+			str = _T("该驱动器是CD-ROM驱动器。");	break;
+		case DRIVE_RAMDISK:
+			str = _T("该驱动器是RAM磁盘。");	break;
+		default: return false;	break;
+		}
+	}
+	return true;
+}
+
 
 bool CMyApi::SetThreadSuspend(const DWORD TID, DWORD* count)
 {
@@ -285,4 +367,11 @@ bool CMyApi::SetThreadTerminate(const DWORD TID, DWORD* count)
 	BOOL ret = TerminateThread(Thread, exid);
 	CloseHandle(Thread);
 	return bool(ret);
+}
+
+bool CMyApi::GetCPU(int& cpu)
+{
+	//BOOL ret = FALSE;
+
+	return false;
 }

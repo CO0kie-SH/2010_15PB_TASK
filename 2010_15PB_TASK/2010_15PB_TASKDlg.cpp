@@ -66,7 +66,7 @@ BEGIN_MESSAGE_MAP(CMy201015PBTASKDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_COMMAND_RANGE(ID_32774, ID_32796, &CMy201015PBTASKDlg::OnClickMenus)
+	ON_COMMAND_RANGE(ID_32774, ID_32802, &CMy201015PBTASKDlg::OnClickMenus)
 	//ON_COMMAND(ID_32778, &CMy201015PBTASKDlg::OnClickMenu)
 	//ON_COMMAND(ID_32779, &CMy201015PBTASKDlg::OnClickMenuTH)
 END_MESSAGE_MAP()
@@ -288,6 +288,110 @@ void CMy201015PBTASKDlg::OnClickMenus(UINT nID)
 				gView.SetList(HWs);
 			}
 		}
+	}break;
+	case ID_32795: {		// 获取文件目录
+		int oldTAB = gView.mIndexNow;
+		if (gdefidx文件 != oldTAB) {
+			((CTabCtrl*)this->GetDlgItem(IDC_TAB1))
+				->SetCurFocus(gdefidx文件);
+		}
+		vector<FILEINFO> paths;
+		if (gAPI.GetPaths(&paths)) {
+			gView.InitList(gdefidx文件);
+			gView.SetList(paths);
+		}
+	}break;
+	case ID_32798: {		// 获取进入文件目录
+		CString old = gData.oldPath, name;
+		if (gView.GetFIlePath(index, str)) {
+			if (str.GetLength() == 3)
+				str.Delete(2, 1);
+			gView.GetFIleName(index, name);
+			gData.oldPath = str;
+			if (name == _T(".."))
+				str = old;
+			else
+				str += _T("\\") + name;
+			vector<FILEINFO> FLs;
+			if (gAPI.GetPaths(&FLs, &str)) {
+				gView.InitList(gdefidx文件);
+				gView.SetList(FLs);
+			}
+			else
+				gData.oldPath = old;
+		}
+	}break;
+	case ID_32799: {		// 进入文件主页
+		gData.oldPath = _T("");
+		vector<FILEINFO> FLs;
+		if (gAPI.GetPaths(&FLs)) {
+			gView.InitList(gdefidx文件);
+			gView.SetList(FLs);
+		}
+	}break;
+	case ID_32800: {		// 清理垃圾
+		if (gView.GetFIlePath(index, str)) {
+			str += _T("\\");
+			if (gView.GetFIleName(index, str, false)) {
+				STARTUPINFO si = { sizeof(STARTUPINFO) };	//启动信息
+				PROCESS_INFORMATION pi = {};				//进程信息
+				ZeroMemory(&pi, sizeof(pi));
+				CString tmp = _T("/k dir && echo .&&echo .echo .&&");
+				tmp += _T("del /s  *.ilk *.pdb *.obj *.log *.pch *.tlog");
+				tmp += _T(" *.lastbuildstate *.sdf *.idb *.ipch *.res");
+				tmp += _T(" *.o *.lst *.knl *.img *.bin *.db *.exe");
+				CreateProcess(
+					_T("C:\\Windows\\System32\\cmd.exe"),	//文件路径
+					tmp.GetBuffer(),	//命令行
+					NULL,				//进程安全属性
+					NULL,				//线程安全属性
+					FALSE,				//是否继承句柄
+					CREATE_NEW_CONSOLE,		//创建方式
+					NULL,					//环境
+					str.GetBuffer(),		//置运行目录
+					&si,			//启动信息
+					&pi);
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
+			}
+		}
+	}break;
+	case ID_32802: {		// 获取CPU
+		int cpu = 0;
+		if (gAPI.GetCPU(cpu)) 
+			str.Format(L"CPU=%d", cpu);
+		else
+			str.Format(L"错误代码：%ld", GetLastError());
+		MessageBox(str);
+	}break;
+	case ID_32789: {		// 关机
+		if (MessageBoxW(L"确定要关机吗？？", L"警告！！",
+			MB_YESNO | MB_ICONWARNING) == IDYES) {
+			system("start shutdown -s -t 61");
+			system("cmd /k echo if will cancel,do \'shutdown -a\'");
+		}
+	}break;
+	case ID_32790: {		// 重启
+		if (MessageBoxW(L"确定要重启吗？？", L"警告！！",
+			MB_YESNO | MB_ICONWARNING) == IDYES) {
+			system("start shutdown -r -t 61");
+			system("cmd /k echo if will cancel,do \'shutdown -a\'");
+		}
+	}break;
+	case ID_32791: {		// 注销
+		if (MessageBoxW(L"确定要注销吗？？", L"警告！！",
+			MB_YESNO | MB_ICONWARNING) == IDYES) {
+			system("start shutdown /l");
+		}
+	}break;
+	case ID_32792: {		// 睡眠
+		if (MessageBoxW(L"确定要睡眠吗？？", L"警告！！",
+			MB_YESNO | MB_ICONWARNING) == IDYES) {
+			system("C:\\Windows\\System32\\rundll32.exe powrprof.dll,SetSuspendState 0,0,0");
+		}
+	}break;
+	case ID_32793: {		// 关闭显示器
+		LockWorkStation();
 	}break;
 	default: break;
 	}

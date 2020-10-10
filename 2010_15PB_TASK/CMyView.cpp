@@ -3,10 +3,15 @@
 
 CMyView gView;
 
-void CMyView::Init(CButton* CVBtnC1, CListCtrl* CVLShw, CListCtrl* CVLSpe)
+void CMyView::Init(CButton* CVBtnC1, CListCtrl* CVLShw, CListCtrl* CVLSpe,
+	CButton* CVBtnC2, CButton* CVBtnC3)
 {
 	this->CVBtnC1 = CVBtnC1;
 	CVBtnC1->SetCheck(BST_CHECKED);
+	this->CVBtnC2 = CVBtnC2;
+	CVBtnC2->SetCheck(BST_CHECKED);
+	this->CVBtnC3 = CVBtnC3;
+	CVBtnC3->SetCheck(BST_CHECKED);
 	this->CVLShw = CVLShw;
 	this->CVLSpe = CVLSpe;
 	CVLShw->InsertColumn(0, _T("窗口标题"), LVCFMT_RIGHT, 222);
@@ -53,12 +58,24 @@ void CMyView::InitList(const int index)
 	case gdefidx堆栈:
 		CVLSpe->InsertColumn(0, L"堆区大小", LVCFMT_CENTER, 77);
 		CVLSpe->InsertColumn(0, L"堆区地址", LVCFMT_CENTER, 211);
-		CVLSpe->InsertColumn(0, L"堆区属性", LVCFMT_CENTER, 66);
+		CVLSpe->InsertColumn(0, L"堆区属性", LVCFMT_CENTER, 77);
 		CVLSpe->InsertColumn(0, gdefstrPID, LVCFMT_CENTER, 65);
 		break;
 	case gdefidx窗口: {
 		
 	}	break;
+	case gdefidx文件:
+		CVLSpe->InsertColumn(0, gdefstrFPath, LVCFMT_CENTER, 77);
+		if (_T("") == gData.oldPath)
+			CVLSpe->InsertColumn(0, L"驱动器类型", LVCFMT_CENTER, 222);
+		else {
+			CVLSpe->InsertColumn(0, L"文件属性", LVCFMT_LEFT, 77);
+			CVLSpe->InsertColumn(4, L"大小", LVCFMT_LEFT, 77);
+			CVLSpe->InsertColumn(5, L"创建时间", LVCFMT_LEFT, 222);
+			CVLSpe->InsertColumn(6, L"修改时间", LVCFMT_LEFT, 222);
+		}
+		CVLSpe->InsertColumn(0, gdefstrFName, LVCFMT_CENTER, 222);
+		break;
 	default: break;
 	}
 	if (index > 0) {
@@ -148,11 +165,16 @@ void CMyView::SetList(vector<HEADINFO>& HDs)
 		CVLSpe->SetItemText(0, gdefidxPPID, str);		//输出进程
 		str.Format(_T("%lld"), hd->dwBlockSize);
 		CVLSpe->SetItemText(0, 0x00000004, str);		//输出进程
+		str.Format(_T("0x%llX"), hd->dwAddress);
+		CVLSpe->SetItemText(0, 0x00000003, str);		//输出地址
+		str.Format(_T("0x%ld"), hd->dwFlags);
+		CVLSpe->SetItemText(0, 0x00000002, str);		//输出属性
 		--hd;
 	}
 	CVLSpe->EnsureVisible((int)(HDs.size() - 1), FALSE);	//滚动条到底
 	if (HDs.size() > 999)	this->CVLSpe->ShowWindow(SW_NORMAL);
 }
+
 
 void CMyView::SetList(vector<ULONG>& HWs)
 {
@@ -165,19 +187,80 @@ void CMyView::SetList(vector<ULONG>& HWs)
 	{
 		str.Format(_T("%ld"), (ULONG)(i + 1));		//格式化序号
 		this->CVLShw->InsertItem(0, str);
-		str.Format(_T("0x%-8lX"), *hw);
+		if(this->CVBtnC3->GetCheck()== BST_CHECKED)
+			str.Format(_T("0x%-8lX"), *hw);
+		else
+			str.Format(_T("%ld"), *hw);
 		this->CVLShw->SetItemText(0, 0x03, str);	//输出句柄
 		DWORD pid = 0, tid = 0;
 		if (gAPI.GetHwndThreadProcessId(*hw, &pid, &tid)) {
 			str.Format(_T("%ld"), pid);
 			CVLShw->SetItemText(0, gdefidxPPID, str);	//输出PID
 			str.Format(_T("%ld"), tid);
-			CVLShw->SetItemText(0, gdefidxPID, str);	//输出PID
+			CVLShw->SetItemText(0, gdefidxPID, str);	//输出TID
 		}
 		if (gAPI.GetHwndText(*hw, str)) {
 			CVLShw->SetItemText(0, 0x04, str);			//输出PID
 		}
+		else if (this->CVBtnC3->GetCheck() == BST_CHECKED)
+			this->CVLShw->DeleteItem(0);
 		--hw;
 	}
 	CVLShw->EnsureVisible((int)(HWs.size() - 1), FALSE);	//滚动条到底
+}
+
+
+void CMyView::SetList(vector<FILEINFO>& FLs)
+{
+	size_t max = FLs.size(), i, count = max;
+	if (max == 0)	return;
+	this->CVLSpe->DeleteAllItems();
+	CString str;	FILEINFO* fl = nullptr;
+	bool isNULL = gData.oldPath == _T("");
+	for (i = max, fl = &FLs[max - 1]; i--; --fl)
+	{
+		str.Format(_T("%lld"), count--);		//格式化序号
+		this->CVLSpe->InsertItem(0, str);
+		this->CVLSpe->SetItemText(0, gdefidxFPath, fl->pName);
+		if (isNULL) {
+			if (gAPI.GetPathMode(*fl, str))
+				this->CVLSpe->SetItemText(0, 0x02, str);
+			continue;
+		}
+		str.Format(_T("%s"), fl->data.cFileName);
+		this->CVLSpe->SetItemText(0, 0x01, str);
+
+		if (gAPI.FileTime2SysTime(fl->data.ftCreationTime, str))
+			this->CVLSpe->SetItemText(0, 0x05, str);
+		if (gAPI.FileTime2SysTime(fl->data.ftLastWriteTime, str))
+			this->CVLSpe->SetItemText(0, 0x06, str);
+
+		if (fl->isDIR & FILE_ATTRIBUTE_DIRECTORY)
+		{}
+		else if(fl->isDIR & FILE_ATTRIBUTE_NORMAL){
+			str = L"普通文件";
+			this->CVLSpe->SetItemText(0, 0x02, str);
+		}
+		else {
+			str.Format(_T("%ld"), fl->isDIR);
+			this->CVLSpe->SetItemText(0, 0x02, str);
+		}
+		if (fl->data.nFileSizeHigh == 0) {
+			str.Format(_T("%ld"), fl->data.nFileSizeLow);
+		}
+		else
+		{
+			/*
+				nFileSizeHigh
+				文件大小的高阶DWORD值，以字节为单位。
+				除非文件大小大于MAXDWORD，否则该值为零。
+				文件的大小等于（nFileSizeHigh *（MAXDWORD +1））+ nFileSizeLow。
+			*/
+			size_t len = (size_t)MAXDWORD + 1;
+			len = fl->data.nFileSizeHigh * len +
+				fl->data.nFileSizeLow;
+			str.Format(_T("%lld"), len);
+		}
+		this->CVLSpe->SetItemText(0, 0x04, str);
+	}
 }

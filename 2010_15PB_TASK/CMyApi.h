@@ -39,6 +39,12 @@ using std::list;
 #define gdefstrTHCout	_T("挂起次数")
 #define gdefidxTHCout	0x04
 
+//	文件
+#define gdefstrFName	_T("文件名")
+#define gdefidxFName	0x01
+#define gdefstrFPath	_T("父路径")
+#define gdefidxFPath	0x03
+
 typedef struct _MODULEINFO {	// 模块信息
 	size_t	tMLP = 0;			// 模块基址
 	DWORD	pPID = 0;			// 所属进程ID
@@ -76,6 +82,14 @@ typedef struct _HEADINFO
 	HANDLE		hHandle;		// 堆块的句柄
 } HEADINFO, * LPHEADINFO;
 
+typedef struct _FILEINFO
+{
+	DWORD	isDIR	= 0;
+	DWORD	FSize	= 0;
+	WIN32_FIND_DATA data = {};
+	CString	pName;
+} FILEINFO, * LPFILEINFO;
+
 #define gdefTabLen		0x06
 #define gdefidx窗口		0x00
 #define gdefidx进程		0x01
@@ -108,10 +122,38 @@ public:
 	bool GetHwnds(vector<ULONG>* HWs);
 	bool GetHwndThreadProcessId(ULONG hwnd, LPDWORD pid, LPDWORD tid);	//从窗口句柄获取PID
 	bool GetHwndText(ULONG hwnd, CString& str);	//从窗口句柄获取标题
+	bool GetPaths(vector<FILEINFO>* FLs, CString* path = nullptr);
+	bool GetPathMode(FILEINFO& Path, CString& str);
 
 	bool SetThreadSuspend(const DWORD TID, DWORD* count = nullptr);
 	bool SetThreadResume(const DWORD TID, DWORD* count = nullptr);
 	bool SetThreadTerminate(const DWORD TID, DWORD* count = nullptr);
+
+	bool GetCPU(int& cpu);
+public:
+	double	FILETIME2Double(_FILETIME& ftime) {
+		LARGE_INTEGER li;
+		li.LowPart = ftime.dwLowDateTime;
+		li.HighPart = ftime.dwHighDateTime;
+		return (double)li.QuadPart;
+	};
+	static __int64 file_time_2_utc(const FILETIME* ftime) {
+		LARGE_INTEGER li;
+		li.LowPart = ftime->dwLowDateTime;
+		li.HighPart = ftime->dwHighDateTime;
+		return li.QuadPart;
+	};
+	bool FileTime2SysTime(FILETIME&fTime, CString&str) {
+		FILETIME LocalTime = { 0 };
+		FileTimeToLocalFileTime(&fTime, &LocalTime);
+		SYSTEMTIME SystemTime = {0};
+		FileTimeToSystemTime(&LocalTime, &SystemTime);
+		str.Format(_T("%d-%02d-%02d_%02d:%02d:%02d.%03d\n"),
+			SystemTime.wYear, SystemTime.wMonth, SystemTime.wDay,
+			SystemTime.wHour, SystemTime.wMinute,
+			SystemTime.wSecond, SystemTime.wMilliseconds);
+		return true;
+	};
 private:
 	static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 };
@@ -128,6 +170,8 @@ public:
 		}PEINFO.clear();
 	};
 public:
+	vector<FILEINFO>	gFILE;
+	CString	oldPath;
 	vector<PROCESSINFO> PEINFO;
 };
 

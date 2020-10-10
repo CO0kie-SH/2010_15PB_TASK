@@ -49,8 +49,16 @@ void CMyDL2::OnRclickList2(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	// TODO: 在此添加控件通知处理程序代码
+	bool pop = false;
 	if (pNMItemActivate->iItem != -1 &&
 		gView.mIndexNow > 0) {
+		pop = true;
+	}
+	else if (gView.mIndexNow == gdefidx文件) {
+		pop = true;
+	}
+
+	if (pop) {
 		ClientToScreen(&pNMItemActivate->ptAction);
 		CMenu obj;
 		obj.LoadMenuW(IDR_MENU1);
