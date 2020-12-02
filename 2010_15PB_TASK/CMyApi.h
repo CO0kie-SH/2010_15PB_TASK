@@ -8,7 +8,7 @@ using std::list;
 
 
 //	标题
-#define MYTITLE			_T("欢迎使用")
+#define MYTITLE			_T("欢迎使用CO0kie丶任务管理器")
 
 //	进程
 #define gdefstrPPID		_T("PPID")

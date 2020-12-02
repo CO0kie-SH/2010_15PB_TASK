@@ -204,6 +204,10 @@ void CMyView::SetList(vector<ULONG>& HWs)
 		}
 		else if (this->CVBtnC3->GetCheck() == BST_CHECKED)
 			this->CVLShw->DeleteItem(0);
+		if (this->CVBtnC1->GetCheck() == BST_CHECKED) {
+			if (IsWindowVisible((HWND)static_cast<size_t>(*hw)) == NULL)
+				this->CVLShw->DeleteItem(0);
+		}
 		--hw;
 	}
 	CVLShw->EnsureVisible((int)(HWs.size() - 1), FALSE);	//¹ö¶¯Ìõµ½µ×
